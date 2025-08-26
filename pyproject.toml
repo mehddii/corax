@@ -2,7 +2,7 @@
 name = "corax"
 version = "0.1.0"
 description = ""
-authors = [{ name = "Your Name", email = "you@example.com" }]
+authors = [{ name = "mehdi", email = "mehdi7bs@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = []
@@ -19,7 +19,8 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-start = "corax.server:main"
+start = "corax.server:start"
+dev = "corax.server:dev"
 
 [tool.mypy]
 disallow_untyped_defs = true
