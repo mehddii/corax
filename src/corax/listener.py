@@ -1,31 +1,48 @@
 import socket
+import logging
 
-class SocketConnectionOFF(Exception):
-    def __init__(self, message: str | None = None):
-        if message is None:
-            message = "No public connection is captured, check that your server is starting!"
-        super().__init__(message)
+from .errors.socket import (
+    SocketConnectionOFF,
+    SocketConnectionON,
+)
 
-class SocketConnectionON(Exception):
-    def __init__(self, message: str | None = None):
-        if message is None:
-            message = "A public connection already running!"
-        super().__init__(message)
-
+logger = logging.getLogger(__name__)
 
 class SocketListener:
+    """
+        Manages the lifecycle of a TCP socket.
+
+        This class is an abstraction for the socket that only listen for
+        requests, accept connections and hand them off to a connection
+        handler.
+    """
+
+    host: str
+    port: int
+    family: socket.AddressFamily
+    dualstack_ipv6: bool
+    public_connection: socket.socket | None
+
     def __init__(
         self,
         address: tuple[str, int],
         family: socket.AddressFamily = socket.AF_INET6,
         dualstack_ipv6: bool = True
     ) -> None:
+        """
+            Initializes the SocketListener with a given address, supports
+            ipv6 by default.
+        """
+
         self.host, self.port = address
         self.family = family
         self.dualstack_ipv6 = dualstack_ipv6
-        self.public_connection: socket.socket | None= None
+        self.public_connection: socket.socket | None = None
 
     def start(self) -> None:
+        """
+            Create a TCP socket, bind it to an address and listen to incoming connections.
+        """
         if self.public_connection is not None:
             raise SocketConnectionON()
 
@@ -36,12 +53,20 @@ class SocketListener:
         )
 
     def accept(self) -> tuple[socket.socket, tuple[str, int, str, str]]:
+        """
+            Accepts new client connections.
+        """
+
         if self.public_connection is None:
             raise SocketConnectionOFF()
 
         return self.public_connection.accept()
 
     def close (self, tries: int = 3) -> None:
+        """
+            Closes the listening socket gracefully.
+        """
+
         if self.public_connection is None:
             return
 
@@ -49,9 +74,9 @@ class SocketListener:
             try:
                 self.public_connection.close()
             except OSError:
-                print("Connection could not be close due to an unknown error")
+                logger.warning("Connection could not be close due to an unknown error")
                 if t < tries - 1:
-                    print("Trying to close the socket again...")
+                    logger.warning("Trying to close the socket again...")
                 elif t == tries - 1:
                     raise OSError
 
