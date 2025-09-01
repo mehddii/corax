@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from corax.http.enums import HttpMethod
 from corax.http.headers import Headers
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class CoraxRequest:
     """
         A data container for a parsed HTTP request.
