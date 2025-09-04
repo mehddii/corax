@@ -19,8 +19,8 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-start = "corax.server:start"
-dev = "corax.server:dev"
+start = "corax.main:start"
+dev = "corax.main:dev"
 
 [tool.mypy]
 disallow_untyped_defs = true
